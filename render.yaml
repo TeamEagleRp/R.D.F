@@ -1,0 +1,34 @@
+# Render Blueprint for R.D.F
+# Deploy this app on Render using the "New Blueprint" option
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: rdf
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        sync: false
+      - key: DISCORD_CLIENT_ID
+        sync: false
+      - key: DISCORD_CLIENT_SECRET
+        sync: false
+      - key: DISCORD_BOT_TOKEN
+        sync: false
+      - key: DISCORD_GUILD_ID
+        sync: false
+      - key: TARGET_ROLE_ID
+        sync: false
+      - key: DISCORD_INVITE
+        sync: false
+      - key: ADMIN_IDS
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: REDIRECT_URI
+        value: https://rdf.onrender.com/api/auth/callback
+
