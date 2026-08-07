@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>R.D.F | لوحة التحكم</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="dashboard-body">
+  <nav class="navbar">
+    <div class="nav-brand">
+      <img src="assets/1.png" alt="R.D.F" class="nav-logo" />
+      <span>قطاع R.D.F</span>
+    </div>
+    <div class="nav-links">
+      <a href="#" class="nav-link active" data-page="home">الرئيسية</a>
+      <a href="#" class="nav-link" data-page="members">الأفراد</a>
+      <a href="#" class="nav-link" data-page="sector">بيانات القطاع</a>
+      <a href="#" class="nav-link" data-page="vehicles">سجل المركبات</a>
+      <a href="#" class="nav-link" data-page="wanted">قائمة المطلوبين</a>
+      <a href="#" class="nav-link" data-page="clothes">ملابس</a>
+      <a href="#" class="nav-link admin-nav-link" data-page="admin" style="display:none;">لوحة المسؤولين</a>
+      <a href="#" class="nav-link admin-nav-link" data-page="log" style="display:none;">Log</a>
+    </div>
+    <div class="nav-user">
+      <img id="user-avatar" src="" alt="user" class="user-avatar" />
+      <span id="user-name" class="user-name"></span>
+      <a href="/api/auth/logout" class="logout-btn">خروج</a>
+    </div>
+  </nav>
+
+  <main class="content">
+    <!-- HOME PAGE -->
+    <section id="page-home" class="page active" style="background-image:url('assets/1.png');">
+      <div class="page-overlay">
+        <div class="home-content">
+          <h1 class="home-title">قطاع R.D.F</h1>
+          <p class="home-text">
+            قطاع R.D.F هو وحدة أمنية متخصصة في الاستجابة السريعة للحالات الطارئة والمهام عالية الخطورة،
+            ويتميز بالجاهزية المستمرة وسرعة الانتشار لدعم العمليات الأمنية عند الحاجة.
+            يعتمد القطاع على العمل الجماعي والانضباط والاحترافية في تنفيذ المهام، مع التركيز على حفظ الأمن،
+            وفرض النظام، والتعامل مع مختلف المواقف بكفاءة عالية.
+          </p>
+          <p class="home-text">
+            ويُعد قطاع R.D.F من الوحدات التي تتطلب سرعة في اتخاذ القرار، ودقة في تنفيذ المهام،
+            وقدرة على العمل تحت الضغط لضمان تحقيق أعلى مستويات الأمن والاستجابة.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- MEMBERS PAGE -->
+    <section id="page-members" class="page" style="background-image:url('assets/1.png');">
+      <div class="page-overlay">
+        <div class="section-container">
+          <h2 class="section-title">الأفراد</h2>
+          <!-- Duty login section -->
+          <div id="duty-section" class="record-form">
+            <h3 class="form-title">تسجيل دخول للخدمة</h3>
+            <div id="duty-status" class="empty-msg">جارٍ تحميل حالة الخدمة...</div>
+            <button id="duty-button" class="btn-add" style="display:none; margin-top:15px;"></button>
+          </div>
+<!-- Directed voice (دخول موجه) section -->
+          <div id="directed-section" class="record-form">
+            <h3 class="form-title">دخول موجه 🎙️</h3>
+            <p class="directed-hint">أدخل رقم الموجه (من 1 إلى 100). إذا كتب أحدهم نفس الرقم سيتواجد معك في نفس الموجه.</p>
+            <div class="form-row">
+              <input type="number" id="directed-number" min="1" max="100" step="any" placeholder="مثال: 89.3" />
+              <button id="directed-button" class="btn-add" type="button">دخول موجه</button>
+            </div>
+<div id="directed-status" class="empty-msg">أنت خارج الموجه حالياً</div>
+          </div>
+          <div id="members-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTOR DATA PAGE -->
+    <section id="page-sector" class="page" style="background-image:url('assets/2.png');">
+      <div class="page-overlay">
+        <div class="section-container">
+          <h2 class="section-title">بيانات القطاع</h2>
+          <form id="sector-form" class="record-form admin-only">
+            <div class="form-row">
+              <input type="text" id="sector-name" placeholder="اسم الشخص" required />
+              <input type="text" id="sector-rank" placeholder="اسم الرتبة" required />
+            </div>
+            <button type="submit" class="btn-add">إضافة</button>
+          </form>
+          <div id="sector-list" class="records-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VEHICLES PAGE -->
+    <section id="page-vehicles" class="page" style="background-image:url('assets/3.png');">
+      <div class="page-overlay">
+        <div class="section-container">
+          <h2 class="section-title">سجل المركبات</h2>
+          <form id="vehicle-form" class="record-form admin-only" enctype="multipart/form-data">
+            <div class="form-row">
+              <input type="text" id="vehicle-name" placeholder="اسم السيارة" required />
+              <input type="text" id="vehicle-color" placeholder="لون السيارة" required />
+              <input type="file" id="vehicle-photo" accept="image/*" />
+            </div>
+            <button type="submit" class="btn-add">إضافة</button>
+          </form>
+          <div id="vehicle-list" class="records-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WANTED PAGE -->
+    <section id="page-wanted" class="page" style="background-image:url('assets/4.png');">
+      <div class="page-overlay">
+        <div class="section-container">
+          <h2 class="section-title">قائمة المطلوبين</h2>
+          <form id="wanted-form" class="record-form admin-only" enctype="multipart/form-data">
+            <div class="form-row">
+              <input type="text" id="wanted-name" placeholder="اسم الشخص أو لقبه" required />
+              <input type="text" id="wanted-charge" placeholder="تهمته" required />
+              <select id="wanted-danger" required>
+                <option value="">درجة التهمة</option>
+                <option value="قصوى">درجة قصوى</option>
+                <option value="متوسطة">درجة متوسطة</option>
+                <option value="خفيفة">درجة خفيفة</option>
+              </select>
+              <input type="file" id="wanted-photo" accept="image/*" />
+            </div>
+            <button type="submit" class="btn-add">إضافة</button>
+          </form>
+          <div id="wanted-list" class="records-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLOTHES PAGE (ملابس) -->
+    <section id="page-clothes" class="page" style="background-image:url('assets/1.png');">
+      <div class="page-overlay">
+        <div class="section-container">
+          <h2 class="section-title">👕 قسم الملابس الرسمي</h2>
+          <p class="section-subtitle">دليل الأطقم والتجهيزات المعتمدة قطاعياً</p>
+
+          <div class="outfits-grid">
+            <div class="outfit-card">
+              <div class="outfit-image-wrapper">
+                <img src="assets/7.jpg" alt="طقم الخفيف الأفراد" class="outfit-img" />
+                <span class="badge badge-primary">الأفراد</span>
+              </div>
+              <div class="outfit-details">
+                <h3>طقم الخفيف الأفراد</h3>
+                <ul class="outfit-list">
+                  <li><strong>التيشيرت:</strong> <span>47 - 70</span></li>
+                  <li><strong>السروال:</strong> <span>4 - 24</span></li>
+                  <li><strong>الدرع:</strong> <span>63 - 41</span></li>
+                  <li><strong>الجزمة (أعزكم الله):</strong> <span>1 - 67</span></li>
+                  <li><strong>النظارات:</strong> <span>2 - 34</span></li>
+                  <li><strong>القفازات:</strong> <span>7 - 60</span></li>
+                  <li><strong>الماسك:</strong> <span>الموضح بالصورة</span></li>
+                  <li><strong>السماعات:</strong> <span>التوجه لمحل الأسلحة ⬅️ السماعات ⬅️ الخيار الأول</span></li>
+                </ul>
+                <div class="outfit-footer">
+                  <small>-# تم ترسيم الملابس من قبل F-1 , F-2</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="outfit-card">
+              <div class="outfit-image-wrapper">
+                <img src="assets/8.jpg" alt="طقم الخفيف الضباط" class="outfit-img" />
+                <span class="badge badge-gold">الضباط</span>
+              </div>
+              <div class="outfit-details">
+                <h3>طقم الخفيف الضباط</h3>
+                <ul class="outfit-list">
+                  <li><strong>التيشيرت:</strong> <span>47 - 70</span></li>
+                  <li><strong>السروال:</strong> <span>4 - 24</span></li>
+                  <li><strong>الدرع:</strong> <span>63 - 59</span></li>
+                  <li><strong>الجزمة (أعزكم الله):</strong> <span>1 - 67</span></li>
+                  <li><strong>النظارات:</strong> <span>2 - 34</span></li>
+                  <li><strong>القفازات:</strong> <span>7 - 60</span></li>
+                  <li><strong>الماسك:</strong> <span>الموضح بالصورة</span></li>
+                  <li><strong>السماعات:</strong> <span>التوجه لمحل الأسلحة ⬅️ السماعات ⬅️ الخيار الأول</span></li>
+                </ul>
+                <div class="outfit-footer">
+                  <small>-# تم ترسيم الملابس من قبل F-1 , F-2</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOG PAGE (Log - admins only) -->
+    <section id="page-log" class="page admin-page admin-only" style="background-image:url('assets/1.png');">
+      <div class="page-overlay">
+        <div class="section-container">
+          <h2 class="section-title">Log</h2>
+          <div class="log-layout">
+            <aside class="log-sidebar">
+              <button class="log-sidebar-btn active" data-log-filter="all">الكل</button>
+              <button class="log-sidebar-btn" data-log-filter="sector">Log بيانات القطاع</button>
+              <button class="log-sidebar-btn" data-log-filter="vehicles">Log سجل المركبات</button>
+              <button class="log-sidebar-btn" data-log-filter="wanted">Log قائمة المطلوبين</button>
+              <button class="log-sidebar-btn" data-log-filter="admin">Log لوحة المسؤولين</button>
+            </aside>
+            <div class="log-content">
+              <div id="log-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN PANEL PAGE (admins only) -->
+    <section id="page-admin" class="page admin-page admin-only" style="background-image:url('assets/1.png');">
+      <div class="page-overlay">
+        <div class="section-container">
+          <h2 class="section-title">لوحة المسؤولين</h2>
+
+          <!-- Members management -->
+          <div class="admin-section">
+            <h3 class="admin-section-title">إدارة الأفراد</h3>
+            <div id="admin-members-list" class="records-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Environment & secrets (DO NOT COMMIT)
+.env
+.env.local
+
+# Logs
+*.log
+server-error.log
+server.err.log
+server.log
+
+# Runtime data
+data.json
+uploads/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Videos / large media
+*.mp4

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>R.D.F | الأفراد</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="dashboard-body">
+  <nav class="navbar">
+    <div class="nav-brand">
+      <img src="assets/1.png" alt="R.D.F" class="nav-logo" />
+      <span>قطاع R.D.F</span>
+    </div>
+    <div class="nav-links">
+      <a href="/" class="nav-link">تسجيل الدخول</a>
+      <a href="members.html" class="nav-link active" data-page="members">الأفراد</a>
+    </div>
+  </nav>
+
+<main class="content">
+    <section id="page-members" class="page active" style="background-image:url('assets/1.png');">
+      <div class="page-overlay">
+        <div class="section-container">
+          <h2 class="section-title">الأفراد</h2>
+
+          <!-- Duty login section -->
+          <div id="duty-section" class="record-form">
+            <h3 class="form-title">تسجيل دخول للخدمة</h3>
+            <div id="duty-status" class="empty-msg">جارٍ تحميل حالة الخدمة...</div>
+            <button id="duty-button" class="btn-add" style="display:none; margin-top:15px;"></button>
+          </div>
+
+          <div id="members-list">
+            <div class="empty-msg">جارٍ تحميل الأفراد...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let currentUserId = null;
+    let currentUserOnDuty = false;
+
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/user');
+        const data = await res.json();
+        if (data.user) {
+          currentUserId = data.user.id;
+          await loadDutyStatus();
+        }
+      } catch (err) {
+        console.error('Auth check failed', err);
+      }
+    }
+
+async function loadDutyStatus() {
+      try {
+        const res = await fetch('/api/duty/me');
+        const data = await res.json();
+        currentUserOnDuty = data.isOnDuty;
+        const statusEl = document.getElementById('duty-status');
+        const btn = document.getElementById('duty-button');
+        // Only show duty login for members who have the "الأفراد" role
+        if (!data.hasRole) {
+          document.getElementById('duty-section').style.display = 'none';
+          return;
+        }
+        document.getElementById('duty-section').style.display = '';
+        if (currentUserOnDuty) {
+          statusEl.textContent = 'أنت مسجل دخول بالخدمة الآن ✅';
+          statusEl.className = 'status-badge on-duty';
+          btn.textContent = 'خروج من الخدمة';
+          btn.className = 'btn-add danger-btn';
+        } else {
+          statusEl.textContent = 'أنت خارج الخدمة حالياً';
+          statusEl.className = 'status-badge off-duty';
+          btn.textContent = 'تسجيل دخول للخدمة';
+          btn.className = 'btn-add';
+        }
+        btn.style.display = '';
+      } catch (err) {
+        document.getElementById('duty-status').textContent = 'تعذر تحميل حالة الخدمة';
+      }
+    }
+
+    document.getElementById('duty-button').addEventListener('click', async () => {
+      const endpoint = currentUserOnDuty ? '/api/duty/logout' : '/api/duty/login';
+      const res = await fetch(endpoint, { method: 'POST' });
+      if (res.ok) {
+        await loadDutyStatus();
+        loadMembers();
+      } else {
+        const d = await res.json();
+        alert(d.error || 'فشل العملية');
+      }
+    });
+
+    async function loadMembers() {
+      const list = document.getElementById('members-list');
+      try {
+        const res = await fetch('/api/members');
+        const data = await res.json();
+        if (!data.botReady) {
+          list.innerHTML = '<div class="empty-msg">البوت غير متصل حالياً. سيتم التحديث تلقائياً...</div>';
+          return;
+        }
+        if (!data.members.length) {
+          list.innerHTML = '<div class="empty-msg">لا يوجد أفراد بهذه الرتبة حالياً</div>';
+          return;
+        }
+
+        const online = data.members.filter(m => m.isOnline);
+        const offline = data.members.filter(m => !m.isOnline);
+
+        const renderCard = (m) => {
+          // Duty status: on duty if online AND onDuty, else off duty
+          const onDuty = m.isOnline && m.isOnDuty;
+          return `
+          <div class="record-card member-card ${m.isOnline ? 'member-online' : 'member-offline'}">
+            <div class="member-avatar-wrap ${m.isOnline ? 'online-glow' : ''}">
+              <img src="${m.avatar}" alt="${m.displayName}" class="member-avatar">
+              <span class="member-status-dot ${m.isOnline ? 'online' : 'offline'}"></span>
+            </div>
+            <div class="member-info">
+              <h3>${m.displayName}</h3>
+              <span class="status ${m.isOnline ? 'online' : 'offline'}">
+                ${m.isOnline ? 'متصل الآن' : 'غير متصل'}
+              </span>
+              ${m.isOnline ? `
+                <div class="duty-badge ${onDuty ? 'on-duty' : 'off-duty'}">
+                  ${onDuty ? 'بالخدمة' : 'خارج الخدمة'}
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+        };
+
+        let html = '';
+
+        // Online section with divider line
+        if (online.length > 0) {
+          html += `
+            <div class="divider-line"><span>متصل</span></div>
+            <div class="records-list">
+              ${online.map(renderCard).join('')}
+            </div>
+          `;
+        }
+
+        // Offline section with divider line
+        if (offline.length > 0) {
+          html += `
+            <div class="divider-line" style="margin-top:40px;"><span>غير متصل</span></div>
+            <div class="records-list">
+              ${offline.map(renderCard).join('')}
+            </div>
+          `;
+        }
+
+        list.innerHTML = html;
+      } catch (err) {
+        list.innerHTML = '<div class="empty-msg">تعذر تحميل الأفراد</div>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      loadMembers();
+    });
+    // Refresh every 15 seconds
+    setInterval(loadMembers, 15000);
+  </script>
+</body>
+</html>
