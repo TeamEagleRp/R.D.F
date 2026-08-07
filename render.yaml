@@ -1,6 +1,10 @@
 # Render Blueprint for R.D.F
 # Deploy this app on Render using the "New Blueprint" option
 # Docs: https://render.com/docs/blueprint-spec
+#
+# IMPORTANT: The env vars below are placeholders. After deploying,
+# set the REAL values in Render's dashboard (Environment tab).
+# NEVER commit real secrets to git.
 
 services:
   - type: web
@@ -12,7 +16,9 @@ services:
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
-        sync: false
+        value: production
+      - key: PORT
+        value: 3000
       - key: DISCORD_CLIENT_ID
         sync: false
       - key: DISCORD_CLIENT_SECRET
@@ -21,14 +27,11 @@ services:
         sync: false
       - key: DISCORD_GUILD_ID
         sync: false
-      - key: TARGET_ROLE_ID
-        sync: false
       - key: DISCORD_INVITE
         sync: false
       - key: ADMIN_IDS
         sync: false
       - key: SESSION_SECRET
-        generateValue: true
+        sync: false
       - key: REDIRECT_URI
         value: https://rdf.onrender.com/api/auth/callback
-
