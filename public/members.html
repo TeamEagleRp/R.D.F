@@ -39,6 +39,7 @@
     </section>
   </main>
 
+  <script src="js/config.js"></script>
   <script>
     let currentUserId = null;
     let currentUserOnDuty = false;
@@ -171,8 +172,9 @@ async function loadDutyStatus() {
       checkAuth();
       loadMembers();
     });
-    // Refresh every 15 seconds
+// Refresh every 15 seconds
     setInterval(loadMembers, 15000);
   </script>
+  <script src="js/live-reload-client.js"></script>
 </body>
 </html>

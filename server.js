@@ -13,9 +13,13 @@ require('dotenv').config();
 
 const db = require('./db');
 const bot = require('./bot');
+const { liveReload } = require('./live-reload');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Enable live-reload (auto-refresh browser on code change)
+liveReload(app);
 
 // ---- Config ----
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID;

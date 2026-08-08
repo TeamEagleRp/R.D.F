@@ -1,11 +1,16 @@
 // R.D.F Dashboard App
+// API helper - prefixes the backend URL so it works from GitHub Pages
+function api(url) {
+  return window.API_BASE + url;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   // Check auth
   let user = null;
   let isAdmin = false;
 
   try {
-    const res = await fetch('/api/user');
+    const res = await fetch(api('/api/user'));
     const data = await res.json();
     user = data.user;
     isAdmin = data.isAdmin;
@@ -60,21 +65,21 @@ if (link.dataset.page === 'admin') {
     });
   });
 
-  // ---- Load data ----
+// ---- Load data ----
   async function loadSection() {
-    const res = await fetch('/api/sector');
+    const res = await fetch(api('/api/sector'));
     const data = await res.json();
     renderSector(data.records);
   }
 
   async function loadVehicles() {
-    const res = await fetch('/api/vehicles');
+    const res = await fetch(api('/api/vehicles'));
     const data = await res.json();
     renderVehicles(data.records);
   }
 
 async function loadWanted() {
-    const res = await fetch('/api/wanted');
+    const res = await fetch(api('/api/wanted'));
     const data = await res.json();
     renderWanted(data.records);
   }
@@ -83,7 +88,7 @@ async function loadWanted() {
     const list = document.getElementById('members-list');
     list.innerHTML = '<div class="empty-msg">جارٍ تحميل الأفراد...</div>';
     try {
-      const res = await fetch('/api/members');
+      const res = await fetch(api('/api/members'));
       const data = await res.json();
       renderMembers(data.members, data.botReady);
     } catch (err) {
