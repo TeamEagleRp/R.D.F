@@ -11,9 +11,11 @@
 - [x] إعداد PM2 لتشغيل البوت 24/7 مع إعادة تشغيل تلقائية (watch mode)
 
 # ضبط الواجهة مع السيرفر على Render (حل مشكلة 404)
-- [x] إنشاء `public/js/config.js` (رابط السيرفر المركزي)
-- [ ] تعديل `public/js/app.js` لاستخدام API_BASE
-- [ ] تعديل `public/members.html` لاستخدام API_BASE
-- [ ] تعديل `public/index.html` (زرّ تسجيل الدخول)
-- [ ] تعديل `index.html` (الواجهة التعريفية على GitHub Pages)
-- [ ] ضبط `render.yaml` وحفظ الروابط
+- [x] إنشاء `public/js/config.js` (رابط السيرفر المركزي + غلاف fetch عام)
+- [x] ربط `config.js` قبل كل سكربتات الواجهة (dashboard, members, index/login) ليعمل غلاف fetch تلقائياً
+- [x] ربط زرّ تسجيل الدخول بـ `window.LOGIN_URL` (نقطة `/api/auth/discord` على السيرفر)
+- [x] إنشاء `render.yaml` (إعداد نشر Node.js على Render)
+- [x] إنشاء `.env.example` (قوالب المتغيرات بدون أسرار)
+- [x] تحديث `README.md` بتعليمات النشر على Render
+- [x] تصحيح رابط المستودع والرفع إلى `TeamEagleRp/R.D.F-com.-`
+- [x] التأكد من عدم رفع `.env` (الأسرار تبقى محلياً فقط)
