@@ -39,12 +39,6 @@
   "warnings": [],
   "duty": [
     {
-      "member_id": "1443579668195315844",
-      "member_name": "ᴍɢ┊𝓜𝓱𝓶𝓪𝓭",
-      "added_by": "mg7code",
-      "loginTime": "2026-08-07T16:46:15.384Z"
-    },
-    {
       "member_id": "1534904851329454181",
       "member_name": "تجارب",
       "added_by": "tga_rb",
@@ -193,12 +187,5 @@
       "createdAt": "2026-08-07T13:50:25.787Z"
     }
   ],
-  "directed": [
-    {
-      "member_id": "1443579668195315844",
-      "member_name": "ᴍɢ┊𝓜𝓱𝓶𝓪𝓭",
-      "number": "60",
-      "loginTime": "2026-08-07T17:40:08.636Z"
-    }
-  ]
+  "directed": []
 }
