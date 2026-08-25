@@ -17,6 +17,8 @@ const { liveReload } = require('./live-reload');
 const app = express();
 const PORT = process.env.PORT || 3100;
 
+app.use(express.static('public'));
+
 // Enable live-reload (auto-refresh browser on code change)
 liveReload(app);
 
