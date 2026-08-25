@@ -25,7 +25,7 @@ liveReload(app);
 // ---- Config ----
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
-const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:3100/api/auth/callback';
+const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:3001/api/auth/callback';
 const GUILD_ID = process.env.DISCORD_GUILD_ID;
 const INVITE = process.env.DISCORD_INVITE || 'https://discord.gg/TF6E5jUXXx';
 
