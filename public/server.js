@@ -10,9 +10,9 @@ const path = require('path');
 const fs = require('fs');
 const fetch = require('node-fetch');
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });
-const db = require('./db');
-const bot = require('./public/bot');
-const { liveReload } = require('./live-reload');
+const db = require('../db');
+const bot = require('./bot');
+const { liveReload } = require('../live-reload');
 
 const app = express();
 const PORT = process.env.PORT || 3100;
