@@ -11,11 +11,11 @@ const fs = require('fs');
 const fetch = require('node-fetch');
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const db = require('./db');
-const bot = require('./public/bot');
+const bot = require('./bot');
 const { liveReload } = require('./live-reload');
 
 const app = express();
-const PORT = process.env.PORT || 3100;
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.static('public'));
 
@@ -47,12 +47,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(UPLOAD_DIR));
 
+// Render/production runs behind a reverse proxy, so trust its HTTPS proxy headers.
+app.set('trust proxy', 1);
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'secret',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 * 24 }, // 1 day
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+    },
   })
 );
 
@@ -113,6 +121,18 @@ app.get('/api/auth/callback', async (req, res) => {
     }
     const user = await userRes.json();
 
+    // The site is restricted to members of the configured Discord server.
+    // The bot checks membership server-side so this cannot be bypassed by editing the browser.
+    if (!GUILD_ID || !bot.isReady()) {
+      console.error('OAuth callback: Discord bot is not ready or GUILD_ID is missing.');
+      return res.redirect('/?error=service_unavailable');
+    }
+
+    const isInGuild = await bot.isGuildMember(user.id);
+    if (!isInGuild) {
+      return res.redirect('/?error=not_in_guild');
+    }
+
     // Store session
     req.session.user = {
       id: user.id,
@@ -121,11 +141,11 @@ app.get('/api/auth/callback', async (req, res) => {
       avatar: user.avatar
         ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
         : `https://cdn.discordapp.com/embed/avatars/${(BigInt(user.id) >> 22n) % 6n}.png`,
-      isInGuild: Boolean(user.id),
+      isInGuild,
       isAdmin: ADMIN_IDS.includes(user.id),
     };
 
-    res.redirect('/dashboard.html');
+    req.session.save(() => res.redirect('/dashboard.html'));
   } catch (err) {
     console.error('OAuth callback error:', err);
     res.redirect('/?error=auth_failed');
@@ -794,8 +814,7 @@ app.get('/api/uniform', (req, res) => {
 // ---- Start ----
 function start() {
   if (!CLIENT_ID || !CLIENT_SECRET) {
-    console.error('❌ Missing Discord credentials. Please fill in .env file.');
-    console.error('   Required: DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET');
+    console.error('❌ Missing Discord credentials. Set DISCORD_CLIENT_ID and DISCORD_CLIENT_SECRET in the environment.');
     process.exit(1);
   }
 

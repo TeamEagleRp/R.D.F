@@ -17,8 +17,6 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 3000
       - key: DISCORD_CLIENT_ID
         sync: false
       - key: DISCORD_CLIENT_SECRET
@@ -28,6 +26,8 @@ services:
       - key: DISCORD_GUILD_ID
         sync: false
       - key: DISCORD_INVITE
+        sync: false
+      - key: TARGET_ROLE_ID
         sync: false
       - key: ADMIN_IDS
         sync: false

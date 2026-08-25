@@ -1,3 +1,13 @@
+require('dotenv').config();
+
+module.exports = {
+    token: process.env.DISCORD_BOT_TOKEN,
+    clientId: process.env.DISCORD_CLIENT_ID,
+    clientSecret: process.env.DISCORD_CLIENT_SECRET,
+    guildId: process.env.DISCORD_GUILD_ID,
+    targetRoleId: process.env.TARGET_ROLE_ID
+};
+
 // R.D.F - Central configuration
 // --------------------------------------------
 // This app has a Node.js/Express BACKEND (server.js).
@@ -12,7 +22,7 @@
 //    pointing API_BASE to the backend.
 // --------------------------------------------
 // Replace this with your REAL backend URL after deploying.
-window.API_BASE = window.API_BASE || 'https://rdf.onrender.com';
+window.API_BASE = window.API_BASE || window.location.origin;
 
 // Full Discord login URL (goes to the backend)
 window.LOGIN_URL = window.LOGIN_URL || window.API_BASE + '/api/auth/discord';

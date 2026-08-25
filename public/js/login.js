@@ -5,8 +5,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const error = params.get('error');
   const errorMsg = document.getElementById('error-msg');
 
-  if (error === 'auth_failed') {
-    errorMsg.textContent = 'فشل تسجيل الدخول عبر ديسكورد، حاول مرة أخرى.';
+  const messages = {
+    auth_failed: 'فشل تسجيل الدخول عبر ديسكورد، حاول مرة أخرى.',
+    not_in_guild: 'يجب أن تكون عضواً في سيرفر R.D.F للدخول.',
+    service_unavailable: 'البوت غير متصل حالياً. حاول مرة أخرى بعد قليل.',
+  };
+  if (error && messages[error]) {
+    errorMsg.textContent = messages[error];
     errorMsg.style.display = 'block';
   }
 

@@ -2,7 +2,7 @@
 // R.D.F Discord Bot - Presence tracking for "الأفراد" section
 // Tracks online/offline status of members who have the target role.
 
-const { Client, GatewayIntentBits, Events, ActivityType, PermissionsFlagsBits } = require('discord.js');
+const { Client, GatewayIntentBits, Events, ActivityType, PermissionFlagsBits } = require('discord.js');
 const { joinVoiceChannel, VoiceConnectionStatus, getVoiceConnection } = require('@discordjs/voice');
 const VOICE_CONNECTIONS = new Map(); // channelId -> connection
 require('dotenv').config();
@@ -40,7 +40,7 @@ let membersCache = [];
 
 // Throttle: minimum time between full Discord member fetches to avoid rate limits
 let lastRefresh = 0;
-const REFRESH_INTERVAL = 20000; // 20 seconds
+const REFRESH_INTERVAL = 60000; // 60 seconds
 
 // Extract members with target role from a guild
 function extractMembers(guild) {
@@ -141,6 +141,20 @@ async function removeMemberFromSector(memberId) {
   }
   updateCache(guild);
   return { success: true };
+}
+
+/**
+ * Checks whether a Discord user is a member of the configured guild.
+ * Used by OAuth so only actual server members can access the dashboard.
+ */
+async function isGuildMember(memberId) {
+  try {
+    const guild = await client.guilds.fetch(GUILD_ID);
+    await guild.members.fetch(memberId);
+    return true;
+  } catch (err) {
+    return false;
+  }
 }
 
 /**
@@ -291,10 +305,10 @@ const channel = await ensureDirectedChannel(guild, n);
     await channel.permissionOverwrites.set([
       {
         id: guild.roles.everyone.id,
-        deny: [PermissionsFlagsBits.ViewChannel, PermissionsFlagsBits.Connect],
+        deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect],
       },
       // Allow only the target member to view and connect
-      { id: memberId, allow: [PermissionsFlagsBits.ViewChannel, PermissionsFlagsBits.Connect] },
+      { id: memberId, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect] },
     ]);
   } catch (e) {
     // If permission update fails, continue moving the member anyway
@@ -425,7 +439,8 @@ module.exports = {
   addMemberToSector,
   removeMemberFromSector,
   hasTargetRole,
-sendDM,
+  isGuildMember,
+  sendDM,
   joinDirectedVoice,
   leaveDirectedVoice,
   isReady: () => client.isReady(),
@@ -439,4 +454,3 @@ if (require.main === module) {
   }
 client.login(TOKEN);
 }
-

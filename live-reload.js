@@ -13,7 +13,6 @@ const WATCH_FILES = [
   'live-reload.js',
   'db.js',
   'bot.js',
-  'bot-patch-voice.js',
   'patch-logs.js',
   'package.json',
   'render.yaml',
@@ -23,7 +22,7 @@ const WATCH_FILES = [
   'public/css/style.css',
   'public/js/app.js',
   'public/js/login.js',
-  'public/live-reload-client.js',
+  'public/js/live-reload-client.js',
 ];
 
 // Root directory of the project (parent of this file)
@@ -43,8 +42,6 @@ function computeFingerprint() {
       hash.update('MISSING:' + rel);
     }
   }
-  // Include modification counting to force uniqueness
-  hash.update(String(Date.now()));
   return hash.digest('hex');
 }
 
