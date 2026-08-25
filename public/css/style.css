@@ -1248,3 +1248,111 @@ body {
     font-size: 1.6rem;
   }
 }
+/* ===== DESIGNER PAGE ===== */
+.designer-body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top right, rgba(88, 101, 242, 0.18), transparent 35%),
+    radial-gradient(circle at bottom left, rgba(63, 185, 80, 0.10), transparent 30%),
+    #0d1117;
+}
+
+.designer-container {
+  min-height: calc(100vh - 62px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.designer-card {
+  width: 100%;
+  max-width: 620px;
+  padding: 42px 30px;
+  text-align: center;
+  background: rgba(22, 27, 34, 0.96);
+  border: 1px solid #30363d;
+  border-radius: 18px;
+  box-shadow: 0 12px 45px rgba(0, 0, 0, 0.45);
+}
+
+.designer-icon {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(88, 101, 242, 0.16);
+  border: 2px solid #5865F2;
+  font-size: 2rem;
+}
+
+.designer-card h1 {
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+}
+
+.designer-description {
+  color: #8b949e;
+  margin-bottom: 28px;
+  line-height: 1.8;
+}
+
+.designer-actions {
+  display: grid;
+  gap: 14px;
+}
+
+.designer-contact-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border: 1px solid #30363d;
+  background: #161b22;
+  transition: transform .2s, background .2s, border-color .2s;
+}
+
+.designer-contact-btn:hover {
+  transform: translateY(-2px);
+  background: #21262d;
+  border-color: #5865F2;
+}
+
+.designer-contact-btn.disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  pointer-events: auto;
+}
+
+.contact-icon {
+  font-size: 1.25rem;
+}
+
+.designer-message {
+  margin-top: 18px;
+  padding: 12px 15px;
+  border-radius: 9px;
+  color: #f0c674;
+  background: rgba(240, 198, 116, 0.08);
+  border: 1px solid rgba(240, 198, 116, 0.25);
+}
+
+.designer-back {
+  display: inline-block;
+  margin-top: 24px;
+  color: #8b96ff;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.designer-back:hover {
+  text-decoration: underline;
+}

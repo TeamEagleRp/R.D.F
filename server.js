@@ -28,6 +28,8 @@ const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:3001/api/auth/callback';
 const GUILD_ID = process.env.DISCORD_GUILD_ID;
 const INVITE = process.env.DISCORD_INVITE || 'https://discord.gg/TF6E5jUXXx';
+const DESIGNER_EMAIL = (process.env.DESIGNER_EMAIL || '').trim();
+const DESIGNER_DISCORD_URL = (process.env.DESIGNER_DISCORD_URL || '').trim();
 
 // Admin (leader) IDs who can write
 const ADMIN_IDS = (process.env.ADMIN_IDS || '')
@@ -166,6 +168,15 @@ app.get('/api/user', (req, res) => {
   } else {
     res.json({ user: null });
   }
+});
+
+// Designer contact details (authenticated users only).
+// Values come from environment variables and are intentionally not hard-coded.
+app.get('/api/designer/contact', requireAuth, (req, res) => {
+  res.json({
+    email: DESIGNER_EMAIL || null,
+    discord: DESIGNER_DISCORD_URL || null,
+  });
 });
 
 // ---- Auth middleware ----

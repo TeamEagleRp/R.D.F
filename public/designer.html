@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LSPD | المصمم</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="designer-body">
+  <nav class="navbar">
+    <div class="nav-brand">
+      <img src="/assets/1.png" alt="LSPD" class="nav-logo">
+      <span>LSPD</span>
+    </div>
+    <div class="nav-links">
+      <a href="/dashboard.html" class="nav-link">الرئيسية</a>
+      <a href="/members.html" class="nav-link">الأفراد</a>
+      <a href="/designer.html" class="nav-link active">المصمم</a>
+    </div>
+    <div class="nav-user">
+      <a href="/api/auth/logout" class="logout-btn">تسجيل الخروج</a>
+    </div>
+  </nav>
+
+  <main class="designer-container">
+    <section class="designer-card">
+      <div class="designer-icon">🎨</div>
+      <h1>صفحة المصمم</h1>
+      <p class="designer-description">
+        للتواصل مع المصمم، اختر طريقة التواصل المناسبة لك.
+      </p>
+
+      <div class="designer-actions">
+        <a id="designer-email-btn" class="designer-contact-btn email" href="#" aria-disabled="true">
+          <span class="contact-icon">✉️</span>
+          <span>التواصل عبر البريد الإلكتروني</span>
+        </a>
+
+        <a id="designer-discord-btn" class="designer-contact-btn discord" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">
+          <span class="contact-icon">💬</span>
+          <span>التواصل عبر Discord</span>
+        </a>
+      </div>
+
+      <p id="designer-message" class="designer-message" hidden></p>
+      <a href="/dashboard.html" class="designer-back">العودة إلى لوحة التحكم</a>
+    </section>
+  </main>
+
+  <script>
+    (async () => {
+      const emailBtn = document.getElementById('designer-email-btn');
+      const discordBtn = document.getElementById('designer-discord-btn');
+      const message = document.getElementById('designer-message');
+
+      function disableButton(btn) {
+        btn.classList.add('disabled');
+        btn.setAttribute('aria-disabled', 'true');
+        btn.addEventListener('click', (e) => e.preventDefault());
+      }
+
+      try {
+        const userRes = await fetch('/api/user', { credentials: 'same-origin' });
+        const userData = await userRes.json();
+
+        if (!userData.user) {
+          window.location.href = '/';
+          return;
+        }
+
+        const res = await fetch('/api/designer/contact', { credentials: 'same-origin' });
+        if (!res.ok) throw new Error('contact_unavailable');
+
+        const data = await res.json();
+        let configured = false;
+
+        if (data.email) {
+          emailBtn.href = 'mailto:' + data.email;
+          emailBtn.removeAttribute('aria-disabled');
+          configured = true;
+        } else {
+          disableButton(emailBtn);
+        }
+
+        if (data.discord) {
+          discordBtn.href = data.discord;
+          discordBtn.removeAttribute('aria-disabled');
+          configured = true;
+        } else {
+          disableButton(discordBtn);
+        }
+
+        if (!configured) {
+          message.hidden = false;
+          message.textContent = 'لم يتم إعداد وسائل التواصل بعد. أضف DESIGNER_EMAIL و DESIGNER_DISCORD_URL في ملف .env.';
+        }
+      } catch (err) {
+        console.error('Designer contact load failed:', err);
+        message.hidden = false;
+        message.textContent = 'تعذر تحميل بيانات التواصل. حاول مرة أخرى.';
+        disableButton(emailBtn);
+        disableButton(discordBtn);
+      }
+    })();
+  </script>
+</body>
+</html>

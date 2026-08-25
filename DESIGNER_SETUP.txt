@@ -1,0 +1,16 @@
+LSPD - Designer Contact Setup
+
+The designer page is available at:
+  /designer.html
+
+After deployment, set these in .env (or Render Environment):
+  DESIGNER_EMAIL=your-email@example.com
+  DESIGNER_DISCORD_URL=https://discord.com/users/...
+or your Discord invite/profile URL.
+
+The contact API requires an authenticated Discord session.
+The existing admin API endpoints remain protected by ADMIN_IDS.
+The ZIP intentionally excludes node_modules; run:
+  npm install
+then:
+  node server.js
