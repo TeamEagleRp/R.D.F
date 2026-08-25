@@ -1,7 +1,7 @@
 {
-  "name": "rdf-app",
+  "name": "lspd-app",
   "version": "1.0.0",
-  "description": "R.D.F - Rapid Deployment Force Discord-integrated web application",
+  "description": "LSPD - Rapid Deployment Force Discord-integrated web application",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

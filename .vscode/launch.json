@@ -8,7 +8,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "Open dashboard.html",
-            "file": "c:\\Users\\mhmad\\Desktop\\R.D.F\\public\\dashboard.html"
+            "file": "c:\\Users\\mhmad\\Desktop\\LSPD\\public\\dashboard.html"
         }
     ]
 }

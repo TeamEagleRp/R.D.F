@@ -1,11 +1,11 @@
-// PM2 Ecosystem Configuration for R.D.F
+// PM2 Ecosystem Configuration for LSPD
 // Run with: pm2 start ecosystem.config.js
 // This keeps the bot running 24/7 and auto-restarts on code changes (watch mode).
 
 module.exports = {
   apps: [
     {
-      name: 'rdf-bot',
+      name: 'lspd-bot',
       script: 'server.js',
       cwd: __dirname,
       instances: 1,
@@ -23,11 +23,11 @@ module.exports = {
       ],
       env: {
         NODE_ENV: 'development',
-        PORT: 3000,
+        PORT: 3001,
       },
       env_production: {
         NODE_ENV: 'production',
-        PORT: 3000,
+        PORT: 3001,
       },
       max_memory_restart: '500M',
       autorestart: true,

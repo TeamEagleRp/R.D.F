@@ -1,4 +1,4 @@
-# Render Blueprint for R.D.F
+# Render Blueprint for LSPD
 # Deploy this app on Render using the "New Blueprint" option
 # Docs: https://render.com/docs/blueprint-spec
 #
@@ -8,7 +8,7 @@
 
 services:
   - type: web
-    name: rdf
+    name: lspd
     runtime: node
     plan: free
     buildCommand: npm install
@@ -34,4 +34,4 @@ services:
       - key: SESSION_SECRET
         sync: false
       - key: REDIRECT_URI
-        value: https://rdf.onrender.com/api/auth/callback
+        sync: false

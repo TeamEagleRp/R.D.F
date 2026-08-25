@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const messages = {
     auth_failed: 'فشل تسجيل الدخول عبر ديسكورد، حاول مرة أخرى.',
-    not_in_guild: 'يجب أن تكون عضواً في سيرفر R.D.F للدخول.',
+    not_in_guild: 'يجب أن تكون عضواً في سيرفر LSPD للدخول.',
     service_unavailable: 'البوت غير متصل حالياً. حاول مرة أخرى بعد قليل.',
   };
   if (error && messages[error]) {

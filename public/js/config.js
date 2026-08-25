@@ -1,21 +1,11 @@
-require('dotenv').config();
-
-module.exports = {
-    token: process.env.DISCORD_BOT_TOKEN,
-    clientId: process.env.DISCORD_CLIENT_ID,
-    clientSecret: process.env.DISCORD_CLIENT_SECRET,
-    guildId: process.env.DISCORD_GUILD_ID,
-    targetRoleId: process.env.TARGET_ROLE_ID
-};
-
-// R.D.F - Central configuration
+// LSPD - Central configuration
 // --------------------------------------------
 // This app has a Node.js/Express BACKEND (server.js).
 // GitHub Pages CANNOT run that backend, so you must host the
 // backend on a Node.js platform (Render, Railway, Koyeb, Fly.io, DigitalOcean, etc).
 //
 // 1) Deploy this whole repo to a Node.js platform. Your backend
-//    will get a URL like: https://rdf.onrender.com
+//    will get a URL like: https://YOUR-APP.onrender.com
 // 2) Set API_BASE below to that URL.
 // 3) Everything (frontend + backend) can be served from ONE url,
 //    OR the frontend can be hosted separately on GitHub Pages while

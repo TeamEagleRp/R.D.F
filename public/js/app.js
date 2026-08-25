@@ -1,4 +1,4 @@
-// R.D.F Dashboard App
+// LSPD Dashboard App
 // API helper - prefixes the backend URL so it works from GitHub Pages
 function api(url) {
   return window.API_BASE + url;
