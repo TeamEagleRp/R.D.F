@@ -1,34 +1,4 @@
-# Dependencies
-node_modules/
-
-# Environment & secrets (DO NOT COMMIT)
+node_modules
 .env
-.env.local
-
-# Logs
-*.log
-server-error.log
-server.err.log
-server.log
-
-# Runtime data
-data.json
-uploads/
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Videos / large media
-*.mp4
-
-# Temporary patch scripts (not needed in production)
-patch-logs.js
-patch-apibase.js
-bot-patch-voice.js
-
-# Logs folder
 logs/
-
-# Render / PM2
-ecosystem.config.js
+*.log

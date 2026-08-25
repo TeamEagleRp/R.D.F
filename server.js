@@ -9,14 +9,13 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const fetch = require('node-fetch');
-require('dotenv').config();
-
+require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const db = require('./db');
-const bot = require('./bot');
+const bot = require('./public/bot');
 const { liveReload } = require('./live-reload');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3100;
 
 // Enable live-reload (auto-refresh browser on code change)
 liveReload(app);
@@ -24,7 +23,7 @@ liveReload(app);
 // ---- Config ----
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
-const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:3000/api/auth/callback';
+const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:3100/api/auth/callback';
 const GUILD_ID = process.env.DISCORD_GUILD_ID;
 const INVITE = process.env.DISCORD_INVITE || 'https://discord.gg/TF6E5jUXXx';
 

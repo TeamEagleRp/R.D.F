@@ -1034,3 +1034,217 @@ body {
   font-size: 0.8rem;
   text-align: center;
 }
+
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Cairo', sans-serif;
+  background: #0d1117;
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== Navbar ===== */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #161b22;
+  border-bottom: 1px solid #30363d;
+  padding: 12px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.nav-logo-img {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #5865f2;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 15px;
+}
+
+.nav-links a {
+  color: #8b949e;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.nav-links a:hover {
+  background: #21262d;
+  color: #fff;
+}
+
+/* ===== Designer Main Content ===== */
+.designer-page-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: radial-gradient(circle at center, #1a2332 0%, #0d1117 100%);
+}
+
+.designer-container {
+  max-width: 500px;
+  width: 100%;
+  background: rgba(22, 27, 34, 0.95);
+  border: 1px solid #30363d;
+  border-radius: 20px;
+  padding: 40px 30px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.designer-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 30px;
+  position: relative;
+  display: inline-block;
+}
+
+.designer-title::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: #5865f2;
+  border-radius: 2px;
+  margin: 8px auto 0;
+}
+
+/* ===== Designer Profile Card ===== */
+.designer-profile-card {
+  margin-bottom: 35px;
+}
+
+.designer-avatar {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #5865f2;
+  box-shadow: 0 0 20px rgba(88, 101, 242, 0.4);
+  margin-bottom: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.designer-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(88, 101, 242, 0.7);
+}
+
+.designer-profile-card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+  direction: ltr; /* للحفاظ على ترتيب الزخرفة والنص الإنجليزي */
+}
+
+.designer-role {
+  color: #8b949e;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* ===== Contact Section ===== */
+.contact-section {
+  border-top: 1px solid #30363d;
+  padding-top: 25px;
+}
+
+.contact-section h3 {
+  font-size: 1.2rem;
+  color: #e6edf3;
+  margin-bottom: 20px;
+}
+
+.contact-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.btn-discord {
+  background: #5865f2;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(88, 101, 242, 0.3);
+}
+
+.btn-discord:hover {
+  background: #4752c4;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.5);
+}
+
+.btn-email {
+  background: #21262d;
+  color: #e6edf3;
+  border: 1px solid #30363d;
+}
+
+.btn-email:hover {
+  background: #30363d;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 480px) {
+  .designer-container {
+    padding: 25px 20px;
+  }
+
+  .designer-avatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .designer-title {
+    font-size: 1.6rem;
+  }
+}

@@ -16,5 +16,8 @@
     "libsodium-wrappers": "^0.8.4",
     "multer": "^2.0.1",
     "node-fetch": "^2.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
