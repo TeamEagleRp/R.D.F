@@ -27,11 +27,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('user-avatar').src = user.avatar;
   document.getElementById('user-name').textContent = user.global_name || user.username;
 
-// If not admin, hide forms and admin nav link
+  // If not admin, hide forms and admin nav links
   if (!isAdmin) {
     document.querySelectorAll('.admin-only').forEach((el) => el.classList.add('hidden'));
+    document.querySelectorAll('.admin-nav-link').forEach((el) => {
+      el.style.display = 'none';
+      el.classList.add('hidden');
+    });
   } else {
-    document.querySelectorAll('.admin-nav-link').forEach((el) => (el.style.display = ''));
+    document.querySelectorAll('.admin-only').forEach((el) => el.classList.remove('hidden'));
+    document.querySelectorAll('.admin-nav-link').forEach((el) => {
+      el.style.display = '';
+      el.classList.remove('hidden');
+    });
   }
 
   // ---- Navigation ----
@@ -39,8 +47,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const pages = document.querySelectorAll('.page');
 
   function showPage(pageName) {
+    if ((pageName === 'admin' || pageName === 'log') && !isAdmin) {
+      pageName = 'home';
+    }
     pages.forEach((page) => page.classList.remove('active'));
-    document.getElementById(`page-${pageName}`).classList.add('active');
+    const target = document.getElementById(`page-${pageName}`);
+    if (target) target.classList.add('active');
 
     navLinks.forEach((link) => {
       link.classList.toggle('active', link.dataset.page === pageName);
@@ -453,13 +465,21 @@ alert(`تم نقلك إلى الموجه ${d.number} 🎙️`);
     }
   });
 
-// ---- Admin Panel ----
-let adminRanks = [];
-let guildMembersList = [];
+  const RANKS_LIST = [
+    'جندي',
+    'عريف',
+    'رقيب',
+    'مساعد أول',
+    'ملازم',
+    'نقيب',
+    'رائد',
+    'مقدم',
+    'عقيد',
+    'لواء',
+  ];
 
   async function loadAdminPanel() {
     try {
-      // Load sector members + render
       await loadAdminMembers();
     } catch (err) {
       console.error('Admin panel load error:', err);
@@ -484,14 +504,25 @@ let guildMembersList = [];
     }
     list.innerHTML = members.map((m) => `
       <div class="record-card admin-member-card">
-        <h3>${escapeHtml(m.name)}</h3>
-        <p>الرتبة: <span class="record-value">${escapeHtml(m.rank)}</span></p>
-<div class="warning-info">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h3>${escapeHtml(m.name)}</h3>
+            <span style="font-size:0.8rem; color:#8b949e;">ID: ${escapeHtml(m.id)}</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <label style="font-size:0.85rem; color:#8b949e;">تغيير الرتبة:</label>
+            <select class="action-btn" style="background:#21262d; color:#fff; padding:6px 10px; min-width:120px;" onchange="changeMemberRank('${m.id}', this.value)">
+              ${RANKS_LIST.map((r) => `<option value="${r}" ${r === m.rank ? 'selected' : ''}>${r}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <p style="margin-top:8px;">الرتبة الحالية: <span class="record-value">${escapeHtml(m.rank)}</span></p>
+        <div class="warning-info">
           <span class="warn-count ${m.warningCount >= m.maxWarnings ? 'warn-max' : ''}">
             التحذيرات: ${m.warningCount} / ${m.maxWarnings}
           </span>
           <span class="warn-status ${m.warningCount >= m.maxWarnings ? 'warn-danger' : (m.warningCount >= m.maxWarnings - 1 ? 'warn-warning' : '')}">
-            ${m.warningCount >= m.maxWarnings ? 'جاهز للفصل' : (m.warningCount >= m.maxWarnings - 1 ? 'مهدد بالفصل' : '')}
+            ${m.warningCount >= m.maxWarnings ? 'جاهز للفصل 🚫' : (m.warningCount >= m.maxWarnings - 1 ? 'مهدد بالفصل ⚠️' : 'سجل منتظم ✅')}
           </span>
         </div>
         ${m.warnings && m.warnings.length ? `<ul class="warn-list">${m.warnings.map((w) => `<li>${escapeHtml(w.reason)} <button class="mini-btn remove-warn" onclick="removeWarning('${w.id}')">✕ إزالة</button></li>`).join('')}</ul>` : ''}
@@ -500,13 +531,41 @@ let guildMembersList = [];
           <button class="action-btn demote" onclick="demoteMember('${m.id}')">▼ تنزيل</button>
           <button class="action-btn warn" onclick="addWarning('${m.id}')">⚠ إضافة تحذير</button>
           <button class="action-btn removewarn" onclick="removeLastWarning('${m.id}', '${m.warnings && m.warnings.length ? m.warnings[m.warnings.length - 1].id : ''}')" ${m.warnings && m.warnings.length ? '' : 'disabled'}>✅ إزالة تحذير</button>
-          ${m.warningCount >= m.maxWarnings ? '<button class="action-btn dismiss" onclick="dismissMember(\'' + m.id + '\')">🚫 فصل الفرد</button>' : ''}
+          ${m.warnings && m.warnings.length ? `<button class="action-btn clear" onclick="clearAllWarnings('${m.id}')">🧹 مسح كل التحذيرات</button>` : ''}
+          <button class="action-btn dismiss" onclick="dismissMember('${m.id}')">🚫 فصل الفرد</button>
         </div>
       </div>
     `).join('');
   }
 
-// ---- Log (سجل الحركات) ----
+  // Handle adding new member from Admin Panel form
+  const addMemberForm = document.getElementById('admin-add-member-form');
+  if (addMemberForm) {
+    addMemberForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('new-member-id').value.trim();
+      const name = document.getElementById('new-member-name').value.trim();
+      const rank = document.getElementById('new-member-rank').value.trim();
+      if (!id || !name || !rank) return;
+
+      const res = await fetch('/api/admin/members', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, name, rank }),
+      });
+      if (res.ok) {
+        alert('تمت إضافة الفرد إلى القطاع بنجاح ✅');
+        addMemberForm.reset();
+        loadAdminMembers();
+        loadMembers();
+      } else {
+        const d = await res.json();
+        alert(d.error || 'فشل إضافة الفرد');
+      }
+    });
+  }
+
+  // ---- Log (سجل الحركات) ----
   let currentLogFilter = 'all';
   let allLogs = [];
 
@@ -574,14 +633,30 @@ let guildMembersList = [];
   // ---- Global admin action functions (used by onclick) ----
   window.promoteMember = async function (id) {
     const res = await fetch(`/api/admin/members/${id}/promote`, { method: 'POST' });
-    if (res.ok) { loadAdminMembers(); }
+    if (res.ok) { loadAdminMembers(); loadMembers(); }
     else { const d = await res.json(); alert(d.error || 'فشل الترقية'); }
   };
 
   window.demoteMember = async function (id) {
     const res = await fetch(`/api/admin/members/${id}/demote`, { method: 'POST' });
-    if (res.ok) { loadAdminMembers(); }
+    if (res.ok) { loadAdminMembers(); loadMembers(); }
     else { const d = await res.json(); alert(d.error || 'فشل التنزيل'); }
+  };
+
+  window.changeMemberRank = async function (id, rank) {
+    if (!rank) return;
+    const res = await fetch(`/api/admin/members/${id}/rank`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rank }),
+    });
+    if (res.ok) {
+      loadAdminMembers();
+      loadMembers();
+    } else {
+      const d = await res.json();
+      alert(d.error || 'فشل تعديل الرتبة');
+    }
   };
 
   window.addWarning = async function (id) {
@@ -592,17 +667,19 @@ let guildMembersList = [];
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ memberId: id, reason }),
     });
-if (res.ok) {
+    if (res.ok) {
       const d = await res.json();
       loadAdminMembers();
       loadMembers();
       if (d.removeReady) {
-        alert('وصل العضو إلى الحد الأقصى من التحذيرات (3/3). اضغط على زر "فصل الفرد" لفصله من القطاع. 🚫');
+        alert('وصل العضو إلى الحد الأقصى من التحذيرات (3/3). يمكنك فصله عبر زر "فصل الفرد". 🚫');
       } else if (d.threatened) {
         alert('تنبيه: أصبح العضو "مهدد بالفصل" عند تحذير واحد إضافي. ⚠️');
       }
+    } else {
+      const d = await res.json();
+      alert(d.error || 'فشل إضافة التحذير');
     }
-    else { const d = await res.json(); alert(d.error || 'فشل إضافة التحذير'); }
   };
 
   window.removeWarning = async function (id) {
@@ -611,7 +688,7 @@ if (res.ok) {
     else { const d = await res.json(); alert(d.error || 'فشل حذف التحذير'); }
   };
 
-// Remove the latest (last) warning of a member
+  // Remove the latest (last) warning of a member
   window.removeLastWarning = async function (memberId, warningId) {
     if (!warningId) {
       alert('لا يوجد تحذيرات لإزالتها لهذا العضو');
@@ -620,6 +697,19 @@ if (res.ok) {
     const res = await fetch(`/api/admin/warnings/${warningId}`, { method: 'DELETE' });
     if (res.ok) { loadAdminMembers(); }
     else { const d = await res.json(); alert(d.error || 'فشل إزالة التحذير'); }
+  };
+
+  // Clear all warnings for a member
+  window.clearAllWarnings = async function (memberId) {
+    if (!confirm('هل أنت متأكد من مسح جميع التحذيرات لهذا العضو؟')) return;
+    const res = await fetch(`/api/admin/warnings/member/${memberId}`, { method: 'DELETE' });
+    if (res.ok) {
+      alert('تم مسح جميع التحذيرات بنجاح ✅');
+      loadAdminMembers();
+    } else {
+      const d = await res.json();
+      alert(d.error || 'فشل مسح التحذيرات');
+    }
   };
 
   // Dismiss (فصل) a member - removes them from the sector
@@ -636,7 +726,7 @@ if (res.ok) {
     }
   };
 
-// ---- Initial load ----
+  // ---- Initial load ----
   showPage('home');
   loadSection();
   loadVehicles();

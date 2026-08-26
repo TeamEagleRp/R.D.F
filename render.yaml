@@ -35,3 +35,7 @@ services:
         sync: false
       - key: REDIRECT_URI
         sync: false
+      - key: DESIGNER_EMAIL
+        sync: false
+      - key: DESIGNER_DISCORD_URL
+        sync: false

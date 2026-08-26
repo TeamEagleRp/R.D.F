@@ -1075,6 +1075,41 @@ body {
   font-size: 2rem;
 }
 
+.designer-profile {
+  margin-bottom: 20px;
+}
+
+.designer-avatar-img {
+  width: 115px;
+  height: 115px;
+  border-radius: 50%;
+  border: 3px solid #5865F2;
+  object-fit: cover;
+  box-shadow: 0 0 25px rgba(88, 101, 242, 0.45);
+  margin-bottom: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.designer-avatar-img:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 35px rgba(88, 101, 242, 0.75);
+}
+
+.designer-name {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 6px;
+  direction: ltr;
+}
+
+.designer-role {
+  color: #8b949e;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
 .designer-card h1 {
   font-size: 2.2rem;
   margin-bottom: 10px;

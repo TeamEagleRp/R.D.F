@@ -220,9 +220,34 @@
         <div class="section-container">
           <h2 class="section-title">لوحة المسؤولين</h2>
 
+          <!-- Add new member to sector -->
+          <div class="admin-section">
+            <h3 class="admin-section-title">➕ إضافة فرد جديد للقطاع</h3>
+            <form id="admin-add-member-form" class="record-form">
+              <div class="form-row">
+                <input type="text" id="new-member-id" placeholder="Discord User ID (مثال: 1443579668195315844)" required />
+                <input type="text" id="new-member-name" placeholder="اسم الفرد" required />
+                <select id="new-member-rank" required>
+                  <option value="">اختر الرتبة</option>
+                  <option value="جندي" selected>جندي</option>
+                  <option value="عريف">عريف</option>
+                  <option value="رقيب">رقيب</option>
+                  <option value="مساعد أول">مساعد أول</option>
+                  <option value="ملازم">ملازم</option>
+                  <option value="نقيب">نقيب</option>
+                  <option value="رائد">رائد</option>
+                  <option value="مقدم">مقدم</option>
+                  <option value="عقيد">عقيد</option>
+                  <option value="لواء">لواء</option>
+                </select>
+              </div>
+              <button type="submit" class="btn-add">إضافة الفرد للقطاع</button>
+            </form>
+          </div>
+
           <!-- Members management -->
           <div class="admin-section">
-            <h3 class="admin-section-title">إدارة الأفراد</h3>
+            <h3 class="admin-section-title">👥 إدارة الأفراد والرتب والتحذيرات</h3>
             <div id="admin-members-list" class="records-list"></div>
           </div>
         </div>

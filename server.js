@@ -26,14 +26,27 @@ const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:3001/api/auth/callback';
 const GUILD_ID = process.env.DISCORD_GUILD_ID;
 const INVITE = process.env.DISCORD_INVITE || 'https://discord.gg/TF6E5jUXXx';
-const DESIGNER_EMAIL = (process.env.DESIGNER_EMAIL || '').trim();
-const DESIGNER_DISCORD_URL = (process.env.DESIGNER_DISCORD_URL || '').trim();
+const DESIGNER_EMAIL = (process.env.DESIGNER_EMAIL || process.env.EMAIL || '').trim();
+const DESIGNER_DISCORD_URL = (process.env.DESIGNER_DISCORD_URL || process.env.DISCORD_URL || '').trim();
 
-// Admin (leader) IDs who can write
-const ADMIN_IDS = (process.env.ADMIN_IDS || '')
-  .split(',')
-  .map((id) => id.trim())
+// Admin (leader) IDs who can access Admin Panel and Log
+const DEFAULT_ADMIN_IDS = [
+  '1490661913288380488',
+  '1486652608746885242',
+  '1511111399558873178',
+  '1443547306518642703',
+  '1037375163508981810',
+  '1443579668195315844',
+];
+
+const ADMIN_IDS = (process.env.ADMIN_IDS ? process.env.ADMIN_IDS.split(',') : DEFAULT_ADMIN_IDS)
+  .map((id) => String(id).trim())
   .filter(Boolean);
+
+function isUserAdmin(userId) {
+  if (!userId) return false;
+  return ADMIN_IDS.includes(String(userId).trim());
+}
 
 // ---- Ensure uploads folder ----
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
@@ -134,6 +147,7 @@ app.get('/api/auth/callback', async (req, res) => {
     }
 
     // Store session
+    const isAdmin = isUserAdmin(user.id);
     req.session.user = {
       id: user.id,
       username: user.username,
@@ -142,7 +156,7 @@ app.get('/api/auth/callback', async (req, res) => {
         ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
         : `https://cdn.discordapp.com/embed/avatars/${(BigInt(user.id) >> 22n) % 6n}.png`,
       isInGuild,
-      isAdmin: ADMIN_IDS.includes(user.id),
+      isAdmin,
     };
 
     req.session.save(() => res.redirect('/dashboard.html'));
@@ -162,9 +176,11 @@ app.get('/api/auth/logout', (req, res) => {
 // Get current user
 app.get('/api/user', (req, res) => {
   if (req.session.user) {
-    res.json({ user: req.session.user, isAdmin: req.session.user.isAdmin });
+    const isAdmin = isUserAdmin(req.session.user.id);
+    req.session.user.isAdmin = isAdmin;
+    res.json({ user: req.session.user, isAdmin });
   } else {
-    res.json({ user: null });
+    res.json({ user: null, isAdmin: false });
   }
 });
 
@@ -189,7 +205,9 @@ function requireAdmin(req, res, next) {
   if (!req.session.user) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
-  if (!req.session.user.isAdmin) {
+  const isAdmin = isUserAdmin(req.session.user.id);
+  req.session.user.isAdmin = isAdmin;
+  if (!isAdmin) {
     return res.status(403).json({ error: 'You do not have permission to write' });
   }
   next();
@@ -388,21 +406,23 @@ app.get('/api/members', async (req, res) => {
 // ---- DUTY (تسجيل دخول للخدمة) ----
 
 // Get current user's duty status
-// Also returns whether the user has the "الأفراد" role (can join duty)
+// Also returns whether the user has the "الأفراد" role or is Admin (can join duty)
 app.get('/api/duty/me', requireAuth, async (req, res) => {
   try {
     const isOnDuty = db.isOnDuty(req.session.user.id);
-    const hasRole = await bot.hasTargetRole(req.session.user.id);
-    res.json({ isOnDuty, hasRole, userId: req.session.user.id });
+    const isAdmin = isUserAdmin(req.session.user.id);
+    const hasRole = isAdmin || (await bot.hasTargetRole(req.session.user.id));
+    res.json({ isOnDuty, hasRole, userId: req.session.user.id, isAdmin });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Login to duty (تسجيل دخول للخدمة) - only for members with الأفراد role
+// Login to duty (تسجيل دخول للخدمة) - for members with الأفراد role or Admins
 app.post('/api/duty/login', requireAuth, async (req, res) => {
   try {
-    const hasRole = await bot.hasTargetRole(req.session.user.id);
+    const isAdmin = isUserAdmin(req.session.user.id);
+    const hasRole = isAdmin || (await bot.hasTargetRole(req.session.user.id));
     if (!hasRole) {
       return res.status(403).json({ error: 'ليس لديك صلاحية تسجيل الدخول للخدمة' });
     }
@@ -433,12 +453,14 @@ app.post('/api/duty/logout', requireAuth, (req, res) => {
 app.get('/api/directed/me', requireAuth, async (req, res) => {
   try {
     const entry = db.getDirectedByMember(req.session.user.id);
-    const hasRole = await bot.hasTargetRole(req.session.user.id);
+    const isAdmin = isUserAdmin(req.session.user.id);
+    const hasRole = isAdmin || (await bot.hasTargetRole(req.session.user.id));
     res.json({
       inDirected: Boolean(entry),
       number: entry ? entry.number : null,
       hasRole,
       userId: req.session.user.id,
+      isAdmin,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -457,8 +479,9 @@ app.post('/api/directed/join', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'يجب أن يكون الرقم بين 1 و 100' });
     }
 
-    // Only members with the الأفراد role can join directed voice
-    const hasRole = await bot.hasTargetRole(req.session.user.id);
+    // Members with the الأفراد role or Admins can join directed voice
+    const isAdmin = isUserAdmin(req.session.user.id);
+    const hasRole = isAdmin || (await bot.hasTargetRole(req.session.user.id));
     if (!hasRole) {
       return res.status(403).json({ error: 'ليس لديك صلاحية الدخول الموجه' });
     }
