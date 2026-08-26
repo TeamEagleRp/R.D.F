@@ -13,8 +13,9 @@
       <span>قطاع LSPD</span>
     </div>
     <div class="nav-links">
-      <a href="/" class="nav-link">تسجيل الدخول</a>
-      <a href="members.html" class="nav-link active" data-page="members">الأفراد</a>
+      <a href="/" class="nav-link" id="nav-home-link">تسجيل الدخول</a>
+      <a href="/members.html" class="nav-link active" data-page="members">الأفراد</a>
+      <a href="/designer.html" class="nav-link">المصمم</a>
     </div>
   </nav>
 
@@ -24,8 +25,8 @@
         <div class="section-container">
           <h2 class="section-title">الأفراد</h2>
 
-          <!-- Duty login section -->
-          <div id="duty-section" class="record-form">
+          <!-- Duty login section (hidden by default until auth and role are verified) -->
+          <div id="duty-section" class="record-form" style="display:none;">
             <h3 class="form-title">تسجيل دخول للخدمة</h3>
             <div id="duty-status" class="empty-msg">جارٍ تحميل حالة الخدمة...</div>
             <button id="duty-button" class="btn-add" style="display:none; margin-top:15px;"></button>
@@ -48,8 +49,13 @@
       try {
         const res = await fetch('/api/user');
         const data = await res.json();
-        if (data.user) {
+        if (data && data.user) {
           currentUserId = data.user.id;
+          const homeLink = document.getElementById('nav-home-link');
+          if (homeLink) {
+            homeLink.href = '/dashboard.html';
+            homeLink.textContent = 'لوحة التحكم';
+          }
           await loadDutyStatus();
         }
       } catch (err) {

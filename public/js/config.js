@@ -36,9 +36,7 @@ window.LOGIN_URL = window.LOGIN_URL || window.API_BASE + '/api/auth/discord';
     }
     // Handle Request objects
     else if (input && typeof input === 'object' && typeof input.url === 'string' && input.url.indexOf('/api/') === 0 && BASE) {
-      const reqInit = { ...input };
-      reqInit.url = BASE + input.url;
-      return nativeFetch(reqInit, init);
+      input = new Request(BASE + input.url, input);
     }
     return nativeFetch(input, init);
   };

@@ -66,9 +66,6 @@ function deleteSector(id, userId) {
   const data = readData();
   const idx = data.sector.findIndex((r) => String(r.id) === String(id));
   if (idx === -1) return { success: false, error: 'not_found' };
-  if (String(data.sector[idx].added_by_id) !== String(userId)) {
-    return { success: false, error: 'not_allowed' };
-  }
   data.sector.splice(idx, 1);
   writeData(data);
   return { success: true };
@@ -98,9 +95,6 @@ function deleteVehicle(id, userId) {
   const data = readData();
   const idx = data.vehicles.findIndex((r) => String(r.id) === String(id));
   if (idx === -1) return { success: false, error: 'not_found' };
-  if (String(data.vehicles[idx].added_by_id) !== String(userId)) {
-    return { success: false, error: 'not_allowed' };
-  }
   data.vehicles.splice(idx, 1);
   writeData(data);
   return { success: true };
@@ -131,9 +125,6 @@ function deleteWanted(id, userId) {
   const data = readData();
   const idx = data.wanted.findIndex((r) => String(r.id) === String(id));
   if (idx === -1) return { success: false, error: 'not_found' };
-  if (String(data.wanted[idx].added_by_id) !== String(userId)) {
-    return { success: false, error: 'not_allowed' };
-  }
   data.wanted.splice(idx, 1);
   writeData(data);
   return { success: true };
@@ -175,6 +166,9 @@ function promoteMember(id) {
   const data = readData();
   const member = data.members.find((m) => String(m.id) === String(id));
   if (!member) return { success: false, error: 'not_found' };
+  if (typeof member.rankIndex !== 'number' || isNaN(member.rankIndex)) {
+    member.rankIndex = clampRankIndex(RANKS.indexOf(member.rank));
+  }
   if (member.rankIndex >= RANKS.length - 1) return { success: false, error: 'max_rank' };
   member.rankIndex += 1;
   member.rank = RANKS[member.rankIndex];
@@ -186,6 +180,9 @@ function demoteMember(id) {
   const data = readData();
   const member = data.members.find((m) => String(m.id) === String(id));
   if (!member) return { success: false, error: 'not_found' };
+  if (typeof member.rankIndex !== 'number' || isNaN(member.rankIndex)) {
+    member.rankIndex = clampRankIndex(RANKS.indexOf(member.rank));
+  }
   if (member.rankIndex <= 0) return { success: false, error: 'min_rank' };
   member.rankIndex -= 1;
   member.rank = RANKS[member.rankIndex];

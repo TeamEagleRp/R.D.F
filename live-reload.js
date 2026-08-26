@@ -19,8 +19,10 @@ const WATCH_FILES = [
   'public/index.html',
   'public/dashboard.html',
   'public/members.html',
+  'public/designer.html',
   'public/css/style.css',
   'public/js/app.js',
+  'public/js/config.js',
   'public/js/login.js',
   'public/js/live-reload-client.js',
 ];

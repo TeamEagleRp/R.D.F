@@ -47,16 +47,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-navLinks.forEach((link) => {
+  navLinks.forEach((link) => {
     link.addEventListener('click', (e) => {
+      if (!link.dataset.page) return;
       e.preventDefault();
       showPage(link.dataset.page);
-if (link.dataset.page === 'members') {
+      if (link.dataset.page === 'members') {
         loadMembers();
         loadDutyStatus();
         loadDirectedStatus();
       }
-if (link.dataset.page === 'admin') {
+      if (link.dataset.page === 'admin') {
         loadAdminPanel();
       }
       if (link.dataset.page === 'log') {
@@ -65,45 +66,45 @@ if (link.dataset.page === 'admin') {
     });
   });
 
-// ---- Load data ----
+  // ---- Load data ----
   async function loadSection() {
-    const res = await fetch(api('/api/sector'));
+    const res = await fetch('/api/sector');
     const data = await res.json();
-    renderSector(data.records);
+    renderSector(data.records || []);
   }
 
   async function loadVehicles() {
-    const res = await fetch(api('/api/vehicles'));
+    const res = await fetch('/api/vehicles');
     const data = await res.json();
-    renderVehicles(data.records);
+    renderVehicles(data.records || []);
   }
 
-async function loadWanted() {
-    const res = await fetch(api('/api/wanted'));
+  async function loadWanted() {
+    const res = await fetch('/api/wanted');
     const data = await res.json();
-    renderWanted(data.records);
+    renderWanted(data.records || []);
   }
 
   async function loadMembers() {
     const list = document.getElementById('members-list');
     list.innerHTML = '<div class="empty-msg">جارٍ تحميل الأفراد...</div>';
     try {
-      const res = await fetch(api('/api/members'));
+      const res = await fetch('/api/members');
       const data = await res.json();
-      renderMembers(data.members, data.botReady);
+      renderMembers(data.members || [], data.botReady);
     } catch (err) {
       list.innerHTML = '<div class="empty-msg">تعذر تحميل الأفراد</div>';
     }
   }
 
-// ---- Render functions ----
+  // ---- Render functions ----
   const sectorList = document.getElementById('sector-list');
   const vehicleList = document.getElementById('vehicle-list');
   const wantedList = document.getElementById('wanted-list');
 
-  // Show delete button only if user is admin and is the one who added the record
+  // Show delete button for admins
   function deleteBtn(type, r) {
-    if (isAdmin && String(r.added_by_id) === String(user.id)) {
+    if (isAdmin) {
       return `<button class="delete-btn" data-type="${type}" data-id="${r.id}">حذف</button>`;
     }
     return '';
@@ -388,7 +389,7 @@ alert(`تم نقلك إلى الموجه ${d.number} 🎙️`);
   function escapeHtml(str) {
     if (!str) return '';
     return String(str).replace(/[&<>"']/g, (c) => ({
-      '&': '&amp;', '<': '<', '>': '>', '"': '"', "'": '&#039;',
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;',
     }[c]));
   }
 

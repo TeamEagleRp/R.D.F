@@ -5,7 +5,7 @@
 const { Client, GatewayIntentBits, Events, ActivityType, PermissionFlagsBits } = require('discord.js');
 const { joinVoiceChannel, VoiceConnectionStatus, getVoiceConnection } = require('@discordjs/voice');
 const VOICE_CONNECTIONS = new Map(); // channelId -> connection
-require('dotenv').config();
+require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.DISCORD_GUILD_ID;
@@ -27,7 +27,7 @@ const RANK_ROLES = [
 ];
 
 const client = new Client({
-intents: [
+  intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildPresences,
@@ -240,10 +240,15 @@ async function ensureDirectedChannel(guild, number) {
   const channelName = `موجه ${number}`;
   let channel = guild.channels.cache.find((c) => c.type === 2 && c.name === channelName);
   if (!channel) {
+    const fetched = await guild.channels.fetch().catch(() => null);
+    if (fetched) {
+      channel = fetched.find((c) => c && c.type === 2 && c.name === channelName);
+    }
+  }
+  if (!channel) {
     channel = await guild.channels.create({
       name: channelName,
       type: 2, // GuildVoice
-      // videoQualityMode: 'auto',
     });
   }
   return channel;
@@ -253,6 +258,12 @@ async function ensureDirectedChannel(guild, number) {
 async function ensureBotVoiceChannel(guild) {
   const channelName = 'موجه -1';
   let channel = guild.channels.cache.find((c) => c.type === 2 && c.name === channelName);
+  if (!channel) {
+    const fetched = await guild.channels.fetch().catch(() => null);
+    if (fetched) {
+      channel = fetched.find((c) => c && c.type === 2 && c.name === channelName);
+    }
+  }
   if (!channel) {
     channel = await guild.channels.create({
       name: channelName,
@@ -264,18 +275,23 @@ async function ensureBotVoiceChannel(guild) {
 
 /** Connects the bot to a voice channel (returns the connection). */
 function connectToVoice(channelId, guild) {
-  const existing = getVoiceConnection(guild.id);
-  if (existing && existing.joinConfig.channelId === channelId) return existing;
-  if (existing) existing.destroy();
-  const connection = joinVoiceChannel({
-    channelId,
-    guildId: guild.id,
-    adapterCreator: guild.voiceAdapterCreator,
-    selfDeaf: false,
-    selfMute: true,
-  });
-  VOICE_CONNECTIONS.set(channelId, connection);
-  return connection;
+  try {
+    const existing = getVoiceConnection(guild.id);
+    if (existing && existing.joinConfig && existing.joinConfig.channelId === channelId) return existing;
+    if (existing) existing.destroy();
+    const connection = joinVoiceChannel({
+      channelId,
+      guildId: guild.id,
+      adapterCreator: guild.voiceAdapterCreator,
+      selfDeaf: false,
+      selfMute: true,
+    });
+    VOICE_CONNECTIONS.set(channelId, connection);
+    return connection;
+  } catch (err) {
+    console.warn('Voice connection warning:', err.message);
+    return null;
+  }
 }
 
 /**
@@ -297,7 +313,7 @@ async function joinDirectedVoice(memberId, number) {
   }
   if (!member) throw new Error('العضو غير موجود في السيرفر');
 
-const channel = await ensureDirectedChannel(guild, n);
+  const channel = await ensureDirectedChannel(guild, n);
 
   // Make the directed channel private so ONLY this member can see/join it
   try {
@@ -316,10 +332,14 @@ const channel = await ensureDirectedChannel(guild, n);
   }
 
   // Connect the bot to its own dedicated voice channel (موجه -1) instead of the member's channel
-  const botChannel = await ensureBotVoiceChannel(guild);
-  connectToVoice(botChannel.id, guild);
+  try {
+    const botChannel = await ensureBotVoiceChannel(guild);
+    connectToVoice(botChannel.id, guild);
+  } catch (voiceErr) {
+    console.warn('Bot voice join skipped:', voiceErr.message);
+  }
 
-  // Wait a short moment for the voice connection to be ready
+  // Wait a short moment for the channel setup
   await new Promise((r) => setTimeout(r, 700));
 
   try {
@@ -349,9 +369,6 @@ async function leaveDirectedVoice(memberId) {
   }
   return { success: true };
 }
-
-// Allow replacing the default voice adapter
-client.guilds.cache.forEach?.((g) => {});
 
 // Manage directed voice channel visibility: only visible to people inside it, and locked.
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {

@@ -17,8 +17,6 @@ const { liveReload } = require('./live-reload');
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
-app.use(express.static('public'));
-
 // Enable live-reload (auto-refresh browser on code change)
 liveReload(app);
 
@@ -258,12 +256,14 @@ const record = db.addSector({
 
 app.delete('/api/sector/:id', requireAdmin, (req, res) => {
   try {
+    const record = db.getSector().find((r) => String(r.id) === String(req.params.id));
     const result = db.deleteSector(req.params.id, req.session.user.id);
     if (!result.success) {
       return res.status(result.error === 'not_found' ? 404 : 403).json({ error: 'لا يمكنك حذف هذا السجل' });
     }
-        logAction(req, 'حذف بيانات قطاع 🗑️', '', req.params.id, 'حذف سجل من بيانات القطاع');
-res.json({ success: true });
+    const name = record ? record.name : '';
+    logAction(req, 'حذف بيانات قطاع 🗑️', name, req.params.id, 'حذف سجل من بيانات القطاع');
+    res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -285,7 +285,7 @@ app.post('/api/vehicles', requireAdmin, upload.single('photo'), (req, res) => {
 
     const photoUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
-const record = db.addVehicle({
+    const record = db.addVehicle({
       name,
       color,
       photo: photoUrl,
@@ -301,12 +301,14 @@ const record = db.addVehicle({
 
 app.delete('/api/vehicles/:id', requireAdmin, (req, res) => {
   try {
+    const record = db.getVehicles().find((r) => String(r.id) === String(req.params.id));
     const result = db.deleteVehicle(req.params.id, req.session.user.id);
     if (!result.success) {
       return res.status(result.error === 'not_found' ? 404 : 403).json({ error: 'لا يمكنك حذف هذا السجل' });
     }
-        logAction(req, 'حذف مركبة 🗑️', '', req.params.id, 'حذف سجل مركبة');
-res.json({ success: true });
+    const name = record ? record.name : '';
+    logAction(req, 'حذف مركبة 🗑️', name, req.params.id, 'حذف سجل مركبة');
+    res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -330,7 +332,7 @@ app.post('/api/wanted', requireAdmin, upload.single('photo'), (req, res) => {
 
     const photoUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
-const record = db.addWanted({
+    const record = db.addWanted({
       name,
       charge,
       danger,
@@ -347,12 +349,14 @@ const record = db.addWanted({
 
 app.delete('/api/wanted/:id', requireAdmin, (req, res) => {
   try {
+    const record = db.getWanted().find((r) => String(r.id) === String(req.params.id));
     const result = db.deleteWanted(req.params.id, req.session.user.id);
     if (!result.success) {
       return res.status(result.error === 'not_found' ? 404 : 403).json({ error: 'لا يمكنك حذف هذا السجل' });
     }
-        logAction(req, 'حذف مطلوب 🗑️', '', req.params.id, 'حذف سجل مطلوب');
-res.json({ success: true });
+    const name = record ? record.name : '';
+    logAction(req, 'حذف مطلوب 🗑️', name, req.params.id, 'حذف سجل مطلوب');
+    res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -613,13 +617,15 @@ app.post('/api/admin/members/:id/promote', requireAdmin, async (req, res) => {
     if (!result.success) {
       return res.status(result.error === 'not_found' ? 404 : 400).json({ error: result.error === 'max_rank' ? 'وصل لأعلى رتبة' : 'العضو غير موجود' });
     }
+    const targetMember = db.getMembers().find((m) => String(m.id) === String(req.params.id));
+    const targetName = targetMember ? targetMember.name : (result.member ? result.member.name : '');
     // Send DM to the promoted member
     bot.sendDM(
       req.params.id,
       dmHeader(req.session.user.id, req.params.id, 'ترقية 🎖️') +
         'تمت **ترقيتك** في قطاع LSPD إلى رتبة **' + result.member.rank + '**\n\nمن قبل: <@' + req.session.user.id + '>'
     );
-    logAction(req, 'ترقية 🎖️', '', req.params.id, 'ترقية فرد');
+    logAction(req, 'ترقية 🎖️', targetName, req.params.id, 'ترقية فرد إلى رتبة ' + result.member.rank);
     res.json({ member: result.member });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -634,13 +640,15 @@ app.post('/api/admin/members/:id/demote', requireAdmin, async (req, res) => {
     if (!result.success) {
       return res.status(result.error === 'not_found' ? 404 : 400).json({ error: result.error === 'min_rank' ? 'وصل لأدنى رتبة' : 'العضو غير موجود' });
     }
+    const targetMember = db.getMembers().find((m) => String(m.id) === String(req.params.id));
+    const targetName = targetMember ? targetMember.name : (result.member ? result.member.name : '');
     // Send DM to the demoted member
     bot.sendDM(
       req.params.id,
       dmHeader(req.session.user.id, req.params.id, 'تنزيل رتبة 📉') +
         'تم **تنزيل رتبتك** في قطاع LSPD إلى رتبة **' + result.member.rank + '**\n\nمن قبل: <@' + req.session.user.id + '>'
     );
-    logAction(req, 'تنزيل رتبة 📉', '', req.params.id, 'تنزيل رتبة فرد');
+    logAction(req, 'تنزيل رتبة 📉', targetName, req.params.id, 'تنزيل رتبة فرد إلى رتبة ' + result.member.rank);
     res.json({ member: result.member });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -656,6 +664,9 @@ app.post('/api/admin/members/:id/rank', requireAdmin, async (req, res) => {
     if (!result.success) {
       return res.status(404).json({ error: 'العضو غير موجود' });
     }
+    const targetMember = db.getMembers().find((m) => String(m.id) === String(req.params.id));
+    const targetName = targetMember ? targetMember.name : '';
+    logAction(req, 'تعديل رتبة', targetName, req.params.id, 'تعديل رتبة إلى ' + rank);
     res.json({ member: result.member });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -678,14 +689,18 @@ app.post('/api/admin/warnings', requireAdmin, async (req, res) => {
   try {
     const { memberId, reason } = req.body;
     if (!memberId || !reason) return res.status(400).json({ error: 'Member and reason are required' });
+    await ensureMemberInDb(memberId);
     const result = db.addWarning({ memberId, reason, addedBy: req.session.user.username });
+    const targetMember = db.getMembers().find((m) => String(m.id) === String(memberId));
+    const targetName = targetMember ? targetMember.name : '';
+
     // Send DM about the warning
     bot.sendDM(
       memberId,
       dmHeader(req.session.user.id, memberId, 'إضافة تحذير ⚠️') +
         'تم **إضافة تحذير** لك في قطاع LSPD **(' + result.count + '/' + result.max + ')**\n> 🗒️ **السبب:** ' + reason + '\n\nالمسؤول: <@' + req.session.user.id + '>'
     );
-    logAction(req, 'إضافة تحذير ⚠️', '', memberId, 'السبب: ' + reason);
+    logAction(req, 'إضافة تحذير ⚠️', targetName, memberId, 'السبب: ' + reason);
     // At the 2nd warning, warn the member they are threatened with dismissal (مهدد بالفصل)
     if (result.threatened && result.count < result.max) {
       bot.sendDM(
@@ -712,8 +727,14 @@ app.post('/api/admin/warnings', requireAdmin, async (req, res) => {
 // Dismiss (فصل) a member manually - removes role from Discord + db record + warnings
 app.post('/api/admin/members/:id/dismiss', requireAdmin, async (req, res) => {
   try {
+    const targetMember = db.getMembers().find((m) => String(m.id) === String(req.params.id));
+    const targetName = targetMember ? targetMember.name : '';
     // Remove the Discord role
-    await bot.removeMemberFromSector(req.params.id);
+    try {
+      await bot.removeMemberFromSector(req.params.id);
+    } catch (botErr) {
+      console.warn('Bot role removal warning:', botErr.message);
+    }
     // Remove from db
     db.removeMember(req.params.id);
     // Clear warnings for this member
@@ -724,7 +745,7 @@ app.post('/api/admin/members/:id/dismiss', requireAdmin, async (req, res) => {
       dmHeader(req.session.user.id, req.params.id, 'فصل من القطاع 🚫') +
         '🚫 تم **فصلك** من قطاع LSPD وتم إزالة رتبتك.\n\nالمسؤول: <@' + req.session.user.id + '>'
     );
-    logAction(req, 'فصل من القطاع 🚫', '', req.params.id, 'فصل فرد من القطاع');
+    logAction(req, 'فصل من القطاع 🚫', targetName, req.params.id, 'فصل فرد من القطاع');
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -738,12 +759,14 @@ app.delete('/api/admin/warnings/:id', requireAdmin, async (req, res) => {
     const result = db.removeWarning(req.params.id);
     if (!result.success) return res.status(404).json({ error: 'التحذير غير موجود' });
     if (warning) {
+      const targetMember = db.getMembers().find((m) => String(m.id) === String(warning.member_id));
+      const targetName = targetMember ? targetMember.name : '';
       bot.sendDM(
         warning.member_id,
         dmHeader(req.session.user.id, warning.member_id, 'إزالة تحذير ✅') +
           '✅ تم **إزالة تحذير** من سجلك في قطاع LSPD.\n\nالمسؤول: <@' + req.session.user.id + '>'
       );
-      logAction(req, 'إزالة تحذير ✅', '', warning.member_id, '');
+      logAction(req, 'إزالة تحذير ✅', targetName, warning.member_id, 'إزالة تحذير من السجل');
     }
     res.json({ success: true });
   } catch (err) {
